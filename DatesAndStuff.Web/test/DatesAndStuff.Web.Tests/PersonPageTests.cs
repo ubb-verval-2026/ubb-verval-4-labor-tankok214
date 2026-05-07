@@ -122,7 +122,7 @@ public class PersonPageTests
     }
 
     [Test]
-    public void Person_SalaryIncrease_LessThanMinusTen_ShouldShowValidationErrors()
+    public void Person_SalaryIncrease_MinusTen_ShouldShowValidationErrors()
     {
         // Arrange
         driver.Navigate().GoToUrl(BaseURL);
@@ -132,7 +132,7 @@ public class PersonPageTests
 
         var input = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']")));
         input.Clear();
-        input.SendKeys("-11");
+        input.SendKeys("-10");
         input.SendKeys(Keys.Tab);
 
         // Act
@@ -141,10 +141,13 @@ public class PersonPageTests
 
         // Assert
         var summaryMessage = wait.Until(ExpectedConditions.ElementExists(By.CssSelector(".validation-errors li")));
-        summaryMessage.Text.Should().Contain("between -10 and infinity");
+        summaryMessage.Text.Should().Contain("greater than -10");
 
         var fieldMessage = wait.Until(ExpectedConditions.ElementExists(By.CssSelector(".validation-message")));
-        fieldMessage.Text.Should().Contain("between -10 and infinity");
+        fieldMessage.Text.Should().Contain("greater than -10");
+
+        var salaryLabel = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='DisplayedSalary']")));
+        double.Parse(salaryLabel.Text).Should().BeApproximately(5000, 0.001);
     }
 
     private bool IsElementPresent(By by)
