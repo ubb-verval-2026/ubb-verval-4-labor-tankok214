@@ -5,7 +5,7 @@
 <PageTitle>Person</PageTitle>
 
 
-<EditForm Model="@formModel" OnValidSubmit="@HandleOnValidSubmit">
+<EditForm Model="@formModel" FormName="PersonSalaryIncreaseForm" OnValidSubmit="@HandleOnValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
@@ -29,15 +29,8 @@
 
 @code {
 
-    private FormModel formModel = new();
-
-    private EditContext? editContext;
-
-    protected override void OnInitialized()
-    {
-        editContext = new EditContext(formModel);
-        base.OnInitialized();
-    }
+    [SupplyParameterFromForm]
+    private FormModel formModel { get; set; } = new();
 
     private DatesAndStuff.Person person = new DatesAndStuff.Person("Testelini Testelina",
                     new EmploymentInformation(5000, new Employer("RO12312312", "Verdici", "Testelono Testeliniii", null)),
@@ -47,22 +40,8 @@
 
     public void HandleOnValidSubmit()
     {
-        try
-        {
-            // additional check
-            if (editContext.Validate())
-            {
-                // do something
-                // submit the form
-                Console.WriteLine($"Trying to increase salary by {formModel.SalaryIncreasePercentage}.");
-                person.IncreaseSalary(formModel.SalaryIncreasePercentage);
-            }
-        }
-        catch
-        {
-            Console.WriteLine($"Trying to increase salary by {formModel.SalaryIncreasePercentage} failed.");
-        }
-
+        Console.WriteLine($"Trying to increase salary by {formModel.SalaryIncreasePercentage}.");
+        person.IncreaseSalary(formModel.SalaryIncreasePercentage);
     }
 
 
