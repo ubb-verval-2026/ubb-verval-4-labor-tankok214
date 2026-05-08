@@ -34,7 +34,7 @@ public class PersonPageTests
         {
             FileName = "dotnet",
             //Arguments = $"run --project \"{webProjectPath}\"",
-            Arguments = "dotnet run --no-build",
+            Arguments = $"run --project \"{webProjectPath}\"",
             WorkingDirectory = webProjFolderPath,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -120,6 +120,36 @@ public class PersonPageTests
         var salaryAfterSubmission = double.Parse(salaryLabel.Text);
         salaryAfterSubmission.Should().BeApproximately(5250, 0.001);
     }
+
+    [Test]
+    public void Person_SalaryIncrease_MinusTen_ShouldShowValidationErrors()
+    {
+        // Arrange
+        driver.Navigate().GoToUrl(BaseURL);
+        driver.FindElement(By.XPath("//*[@data-test='PersonPageNavigation']")).Click();
+
+        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+        var input = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']")));
+        input.Clear();
+        input.SendKeys("-10");
+        input.SendKeys(Keys.Tab);
+
+        // Act
+        var submitButton = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreaseSubmitButton']")));
+        submitButton.Click();
+
+        // Assert
+        var summaryMessage = wait.Until(ExpectedConditions.ElementExists(By.CssSelector(".validation-errors li")));
+        summaryMessage.Text.Should().Contain("greater than -10");
+
+        var fieldMessage = wait.Until(ExpectedConditions.ElementExists(By.CssSelector(".validation-message")));
+        fieldMessage.Text.Should().Contain("greater than -10");
+
+        var salaryLabel = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='DisplayedSalary']")));
+        double.Parse(salaryLabel.Text).Should().BeApproximately(5000, 0.001);
+    }
+
     private bool IsElementPresent(By by)
     {
         try

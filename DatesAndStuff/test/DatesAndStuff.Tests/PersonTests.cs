@@ -55,11 +55,13 @@ public class PersonTests
         Assert.IsTrue(task.IsFaulted);
     }
 
-    [Test]
-    [CustomPersonCreationAutodataAttribute]
-    public void IncreaseSalary_ReasonableValue_ShouldModifySalary(Person sut, double salaryIncreasePercentage)
+    [TestCase(0)]
+    [TestCase(10)]
+    [TestCase(-5)]
+    public void IncreaseSalary_ReasonableValue_ShouldModifySalary(double salaryIncreasePercentage)
     {
         // Arrange
+        var sut = PersonFactory.CreateTestPerson();
         double initialSalary = sut.Salary;
 
         // Act
@@ -108,6 +110,13 @@ public class PersonTests
     [Test]
     public void IncreaseSalary_SmallerThanMinusTenPerc_ShouldFail()
     {
-        // throw new NotImplementedException();
+        // Arrange
+        var sut = PersonFactory.CreateTestPerson();
+
+        // Act
+        Action act = () => sut.IncreaseSalary(-10);
+
+        // Assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 }
